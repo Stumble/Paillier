@@ -1,12 +1,12 @@
-// need ramdom
+import java.util.Random;
 
-
-class Paillier {
+class Paillier
+{
     public int invMod(int a, int p, int maxiter=1000000)
     {
         if (a == 0) {
-            // throw exception
-            // 0 has no inverse mod
+            System.out.println("ERROR: 0 has no inverse mod");
+            return 0;
         }
         int r = a;
         int d = 1;
@@ -20,7 +20,8 @@ class Paillier {
             }
         }
         if (!flag) {
-            // throw excepetion, a has no inverse mod p
+            System.out.println("ERROR: a has no inverse mod p");
+            return 0;
         }
         return d;
     }
@@ -184,5 +185,5 @@ class Primes {
             }
         }
     }
-
+   Random r = new Random();
 }

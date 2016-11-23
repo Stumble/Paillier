@@ -30,7 +30,7 @@ class Paillier
     {
         int result = 1;
         while (exp > 0) {
-            if (exp & 1 == 1) {
+            if ((exp & 1) == 1) {
                 result = (result * base) % mod;
             }
             exp = exp >> 1;
@@ -42,10 +42,10 @@ class Paillier
     class PrivateKey {
         PrivateKey(int p, int q, int n) {
             l = (p - 1) * (q - 1);
-            m =invMod(l, n);
+            m = invMod(l, n);
         }
-        int l;
-        int m;
+        public int l;
+        public int m;
     }
 
     class PublicKey {
@@ -56,21 +56,23 @@ class Paillier
             g = n + 1;
         }
 
-        static void fromN(int n) {
+        static PublicKey fromN(int n) {
             // ..
-            return PrivateKey(n);
+            return PublicKey(n);
         }
 
-        int n;
-        int n_sq;
-        int g;
+        public int n;
+        public int nSq;
+        public int g;
     }
 
     static pair<PrivateKey, PublicKey> generateKeyPair(int bits) {
         int p = primes.generatePrime(bits / 2);
         int q = primes.generatePrime(bits / 2);
         int n = p * q;
-        return ....;
+        PrivateKey priv = new PrivateKey(p, q, n);
+        PublicKey pub = new PublicKey(n);
+        return make_pair<PrivateKey, PublicKey>(priv, pub);
     }
 
     static int encrypt(PublicKey pub, int plain)

@@ -12,11 +12,13 @@ class Paillier
         }
         return ans;
     }
-    public static long invMod(long a, long p, long maxiter)
+
+    public static long invMod(long a, long p) throws Exception
     {
+        long maxiter = 10000000;
         if (a == 0) {
-            System.out.println("ERROR: 0 has no inverse mod");
-            return 0;
+            throw new Exception("ERROR: 0 has no inverse mod");
+            // System.out.println();
         }
         long r = a;
         long d = 1;
@@ -30,16 +32,23 @@ class Paillier
             }
         }
         if (!flag) {
-            System.out.println("ERROR: a has no inverse mod p");
-            return 0;
+            throw new Exception("ERROR: a has no inverse mod p, a is:" + a);
         }
         return d;
     }
 
-    public static long invMod(long a, long p)
-    {
-        return invMod(a, p, 1000000);
-    }
+    // public static long invMod(long a, long p)
+    // {
+    //     long rtn = 0;
+    //     try {
+    //          rtn = invMod(a, p, 10000000);
+    //     }
+    //     catch (Throwable e) {
+    //         System.out.println("Error " + e.getMessage());
+    //         e.printStackTrace();
+    //     }
+    //     return rtn;
+    // }
 
     public static long modPow(long base, long exp, long mod)
     {
@@ -55,24 +64,32 @@ class Paillier
     }
 
     public static KeyPair generateKeyPair(long bits) {
-        long p = Primes.generatePrime(bits / 2);
-        long q = Primes.generatePrime(bits / 2);
-        long n = p * q;
-        PrivateKey priv = new PrivateKey(p, q, n);
-        PublicKey pub = new PublicKey(n);
-        KeyPair kp = new KeyPair(priv, pub);
-        System.err.println("this is p" + p);
-        System.err.println("this is q" + p);
-        return kp;
+        try {
+            long p = Primes.generatePrime(bits / 2);
+            long q = Primes.generatePrime(bits / 2);
+            long n = p * q;
+            PrivateKey priv = new PrivateKey(p, q, n);
+            PublicKey pub = new PublicKey(n);
+            KeyPair kp = new KeyPair(priv, pub);
+            // System.err.println("this is p" + p);
+            // System.err.println("this is q" + p);
+            return kp;
+        }
+        catch (Throwable e) {
+            return generateKeyPair(bits);
+            // System.out.println("Error " + e.getMessage());
+            // e.printStackTrace();
+        }
+
         // return KeyPair()
     }
 
     public static long encrypt(PublicKey pub, long plain)
     {
-        System.err.println((pub.n));
-        System.err.println(Math.log(pub.n));
-        System.err.println(Math.log(pub.n) / Math.log(2));
-        System.err.println(Math.round((long)(Math.log(pub.n) / Math.log(2))));
+        // System.err.println((pub.n));
+        // System.err.println(Math.log(pub.n));
+        // System.err.println(Math.log(pub.n) / Math.log(2));
+        // System.err.println(Math.round((long)(Math.log(pub.n) / Math.log(2))));
 
         long r;
         while(true) {
@@ -82,13 +99,13 @@ class Paillier
             }
         }
 
-        System.err.println("r is :" + r);
-        System.err.println("pub.n is :" + pub.n);
-        System.err.println("pub.nSq is :" + pub.nSq);
+        // System.err.println("r is :" + r);
+        // System.err.println("pub.n is :" + pub.n);
+        // System.err.println("pub.nSq is :" + pub.nSq);
 
         long x = powpow(r, pub.n, pub.nSq);
 
-        System.err.println("x is :" + x);
+        // System.err.println("x is :" + x);
         long cipher = (powpow(pub.g, plain, pub.nSq) * x) % pub.nSq;
         return cipher;
     }
@@ -118,7 +135,7 @@ class Paillier
 
 
     static public class PrivateKey {
-        PrivateKey(long p, long q, long n) {
+        PrivateKey(long p, long q, long n) throws Exception {
             l = (p - 1) * (q - 1);
             m = Paillier.invMod(l, n);
         }
@@ -192,7 +209,6 @@ class Primes {
 
     static public boolean isPrime(long possible,long k)
     {
-        System.err.println(possible);
         if (possible == 1) {
             return true;
         }
@@ -220,8 +236,6 @@ class Primes {
 
     static public long generatePrime(long nBit)
     {
-        System.err.println(nBit);
-
         long k = Math.max(30, nBit * 2);
 
         while (true) {
@@ -239,11 +253,27 @@ class Primes {
 class Main
 {
     public static void main(String[] args) {
+        // for (int i = 0; i <= 100000; i++) {
+        //     Paillier.KeyPair kp = Paillier.generateKeyPair(12);
+        // }
+        int cnt = 0;
+        for (int i = 0; i < 100; i++) {
+            Paillier.KeyPair kp = Paillier.generateKeyPair(12);
+            long a = 100;
+            long aE = Paillier.encrypt(kp.pub, a);
+            if (Paillier.decrypt(kp.priv, kp.pub, aE) != a) {
+                // System.err.println("??");
+                cnt++;
+            }
+        }
+        System.err.println(cnt);
         Paillier.KeyPair kp = Paillier.generateKeyPair(8);
-        long a = 10;
+        long a = 100;
         // long b = 122;
+        System.err.println("start encrypt");
         long aE = Paillier.encrypt(kp.pub, a);
         // long bE = Paillier.encrypt(kp.pub, b);
+        System.err.println("start to decrypt");
         System.out.println("this is the A:" + Paillier.decrypt(kp.priv, kp.pub, aE));
         // System.out.println("this is the B:" + Paillier.decrypt(kp.priv, kp.pub, bE));
         // System.out.println("this is the Ae:" + aE);

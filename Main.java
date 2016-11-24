@@ -1,8 +1,18 @@
-import java.util.Random;
+// import java.util.Random;
+import java.util.*;
 
 class Paillier
 {
-    public int invMod(int a, int p, int maxiter=1000000)
+    public static int powpow(int base, int times, int mods)
+    {
+        int ans = 1;
+        for (int i = 0; i < times; i++) {
+            ans *= base;
+            ans %= mods;
+        }
+        return ans;
+    }
+    public static int invMod(int a, int p, int maxiter)
     {
         if (a == 0) {
             System.out.println("ERROR: 0 has no inverse mod");
@@ -11,7 +21,7 @@ class Paillier
         int r = a;
         int d = 1;
         boolean flag = false;
-        for (int i = 0; i < min(p, maxiter); i++) {
+        for (int i = 0; i < Math.min(p, maxiter); i++) {
             d = ((p / r + 1) * d) % p;
             r = (d * a) % p;
             if (r == 1) {
@@ -26,7 +36,12 @@ class Paillier
         return d;
     }
 
-    public int modPow(int base, int exp, int mod)
+    public static int invMod(int a, int p)
+    {
+        return invMod(a, p, 1000000);
+    }
+
+    public static int modPow(int base, int exp, int mod)
     {
         int result = 1;
         while (exp > 0) {
@@ -39,26 +54,84 @@ class Paillier
         return result;
     }
 
-    class PrivateKey {
+    public static KeyPair generateKeyPair(int bits) {
+        int p = Primes.generatePrime(bits / 2);
+        int q = Primes.generatePrime(bits / 2);
+        int n = p * q;
+        PrivateKey priv = new PrivateKey(p, q, n);
+        PublicKey pub = new PublicKey(n);
+        KeyPair kp = new KeyPair(priv, pub);
+        System.err.println("this is p" + p);
+        System.err.println("this is q" + p);
+        return kp;
+        // return KeyPair()
+    }
+
+    public static int encrypt(PublicKey pub, int plain)
+    {
+        System.err.println((pub.n));
+        System.err.println(Math.log(pub.n));
+        System.err.println(Math.log(pub.n) / Math.log(2));
+        System.err.println(Math.round((int)(Math.log(pub.n) / Math.log(2))));
+
+        int r;
+        while(true) {
+            r = Primes.generatePrime(Math.round((int)(Math.log(pub.n) / Math.log(2))));
+            if (r > 0 && r < pub.n) {
+                break;
+            }
+        }
+
+        System.err.println("r is :" + r);
+        System.err.println("pub.n is :" + pub.n);
+        System.err.println("pub.nSq is :" + pub.nSq);
+
+        int x = powpow(r, pub.n, pub.nSq);
+
+        System.err.println("x is :" + x);
+        int cipher = (powpow(pub.g, plain, pub.nSq) * x) % pub.nSq;
+        return cipher;
+    }
+
+    public static int eAdd(PublicKey pub, int a,int b)
+    {
+        return a * b % pub.nSq;
+    }
+
+    public static int eAddConst(PublicKey pub, int a,int n)
+    {
+        return a * modPow(pub.g, n, pub.nSq) % pub.nSq;
+    }
+
+    public static int eMulConst(PublicKey pub, int a,int n)
+    {
+        return modPow(a, n, pub.nSq);
+    }
+
+    public static int decrypt(PrivateKey priv, PublicKey pub, int cipher)
+    {
+        int x = powpow(cipher, priv.l, pub.nSq) - 1;
+        int plain = ((x / pub.n) * priv.m) % pub.n;
+        return plain;
+    }
+
+
+
+    static public class PrivateKey {
         PrivateKey(int p, int q, int n) {
             l = (p - 1) * (q - 1);
-            m = invMod(l, n);
+            m = Paillier.invMod(l, n);
         }
         public int l;
         public int m;
     }
 
-    class PublicKey {
-        PublicKey(int n) {
-            n = n;
+    static public class PublicKey {
+        PublicKey(int nx) {
+            n = nx;
             // might need long long for nSq
             nSq = n * n;
             g = n + 1;
-        }
-
-        static PublicKey fromN(int n) {
-            // ..
-            return PublicKey(n);
         }
 
         public int n;
@@ -66,55 +139,23 @@ class Paillier
         public int g;
     }
 
-    static pair<PrivateKey, PublicKey> generateKeyPair(int bits) {
-        int p = primes.generatePrime(bits / 2);
-        int q = primes.generatePrime(bits / 2);
-        int n = p * q;
-        PrivateKey priv = new PrivateKey(p, q, n);
-        PublicKey pub = new PublicKey(n);
-        return make_pair<PrivateKey, PublicKey>(priv, pub);
-    }
-
-    static int encrypt(PublicKey pub, int plain)
-    {
-        while(true) {
-            r = primes.generatePrime(round(math.log(pub.n, 2)));
-            if (r > 0 && r < pub.n) {
-                break;
-            }
+    static public class KeyPair {
+        KeyPair(PrivateKey privateKey, PublicKey publicKey)
+        {
+            priv = privateKey;
+            pub = publicKey;
         }
-        int x = pow(r, pub.n, pub.nSq);
-        int cipher = (pow(pub.g, plain, pub.nSq) * x) % pub.nSq;
-        return cipher;
+        PrivateKey priv;
+        PublicKey pub;
     }
 
-    static int eAdd(PublicKey pub, int a,int b)
-    {
-        return a * b % pub.nSq;
-    }
-
-    static int eAddConst(PublicKey pub, int a,int b)
-    {
-        return a * modpow(pub.g, n, pub.n_sq) % pub.n_sq;
-    }
-
-    static int eMulConst(PublicKey pub, int a,int b)
-    {
-        return modpow(a, n, pub.n_sq);
-    }
-
-    static int decrypt(PrivateKey priv, PublicKey pub, int cipher)
-    {
-        int x = pow(cipher, priv.l, pub.nSq) - 1;
-        int plain = ((x / pub.n) * priv.m) % pub.n;
-        return plain;
-    }
 }
 
 
 
 class Primes {
-    public boolean rabinMillerWitness(int test, int possible)
+
+    static public boolean rabinMillerWitness(int test, int possible)
     {
         int a = test;
         int b = possible - 1;
@@ -132,7 +173,7 @@ class Primes {
 
         while (t > 0) {
             A = (A * A) % n;
-            if (t & b) {
+            if ((t & b) != 0) {
                 A = (A * a) % n;
             }
             if (A == 1) {
@@ -144,13 +185,14 @@ class Primes {
     }
 
     // return a random int in [beg, end)
-    public int randRange(int beg,int end)
+    static public int randRange(int beg,int end)
     {
         return r.nextInt(end - beg) + beg;
     }
 
-    public boolean isPrime(int possible,int k)
+    static public boolean isPrime(int possible,int k)
     {
+        System.err.println(possible);
         if (possible == 1) {
             return true;
         }
@@ -163,7 +205,7 @@ class Primes {
             }
         }
         // only 30 bits are used.
-        for (itn i = 0; i <= k; i++) {
+        for (int i = 0; i <= k; i++) {
             // randdom number in [2,possible - 1)
             int test = randRange(2, possible - 1) | 1;
             if (rabinMillerWitness(test, possible)) {
@@ -173,19 +215,38 @@ class Primes {
         return true;
     }
 
-    static Int[] smallPrimes = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,
+    static int[] smallPrimes = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,
                                 47,53,59,61,67,71,73,79,83,89,97};
 
-    public int generatePrime(int nBit)
+    static public int generatePrime(int nBit)
     {
-        int k = max(30, nBit * 2);
+        System.err.println(nBit);
+
+        int k = Math.max(30, nBit * 2);
 
         while (true) {
-            int possible = randRange(2 ^ (nBit - 1) + 1, 2 ^ nBit) | 1;
+            int possible = randRange(((int)Math.pow(2, (nBit - 1))) + 1, (int)Math.pow(2, nBit)) | 1;
             if (isPrime(possible, k)) {
                 return possible;
             }
         }
     }
-   Random r = new Random();
+
+    static Random r = new Random();
+}
+
+
+class Main
+{
+    public static void main(String[] args) {
+        Paillier.KeyPair kp = Paillier.generateKeyPair(8);
+        int a = 10;
+        int b = 12;
+        int aE = Paillier.encrypt(kp.pub, a);
+        System.out.println("this is the Ae:" + aE);
+        int bE = Paillier.encrypt(kp.pub, b);
+        int sumE = Paillier.eAdd(kp.pub, aE, bE);
+        int sum = Paillier.decrypt(kp.priv, kp.pub, sumE);
+        System.out.println("this is the ans:" + sum);
+    }
 }

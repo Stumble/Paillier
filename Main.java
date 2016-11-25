@@ -63,11 +63,21 @@ class Paillier
         return result;
     }
 
+
+    public static long gcd(long a, long b)
+    {
+        if(a == 0 || b == 0) return a+b; // base case
+        return gcd(b,a%b);
+    }
+
     public static KeyPair generateKeyPair(long bits) {
         try {
             long p = Primes.generatePrime(bits / 2);
             long q = Primes.generatePrime(bits / 2);
             long n = p * q;
+            if (gcd(n, (p-1)*(q-1)) != 1) {
+                System.err.println("error in two primes");
+            }
             PrivateKey priv = new PrivateKey(p, q, n);
             PublicKey pub = new PublicKey(n);
             KeyPair kp = new KeyPair(priv, pub);
@@ -99,7 +109,8 @@ class Paillier
             }
         }
 
-        // System.err.println("r is :" + r);
+        // System.err.println(r);
+        System.err.println("r is :" + r);
         // System.err.println("pub.n is :" + pub.n);
         // System.err.println("pub.nSq is :" + pub.nSq);
 
@@ -259,9 +270,18 @@ class Main
         int cnt = 0;
         for (int i = 0; i < 100; i++) {
             Paillier.KeyPair kp = Paillier.generateKeyPair(12);
-            long a = 100;
+            long a = 1000;
+            System.err.println("???");
             long aE = Paillier.encrypt(kp.pub, a);
             if (Paillier.decrypt(kp.priv, kp.pub, aE) != a) {
+                System.err.println("---------- error start --------");
+                System.err.println(kp.priv.l);
+                System.err.println(kp.priv.m);
+                System.err.println(kp.pub.n);
+                System.err.println(kp.pub.g);
+                System.err.println(aE);
+                System.err.println(Paillier.decrypt(kp.priv, kp.pub, aE));
+                System.err.println("---------- error end --------");
                 // System.err.println("??");
                 cnt++;
             }

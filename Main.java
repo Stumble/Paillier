@@ -72,10 +72,10 @@ class Paillier
         return a.multiply(modPow(pub.g, bigIntN, pub.nSq)).mod(pub.nSq);
     }
 
-    // public static long eMulConst(PublicKey pub, long a,long n)
-    // {
-    //     return modPow(a, n, pub.nSq);
-    // }
+    public static BigInteger eMulConst(PublicKey pub, BigInteger a,long n)
+    {
+        return modPow(a, BigInteger.valueOf(n), pub.nSq);
+    }
 
     public static long decrypt(PrivateKey priv, PublicKey pub, BigInteger cipher)
     {
@@ -174,8 +174,23 @@ class Main
         }
     }
 
+    private static void testMulConst()
+    {
+        Paillier.KeyPair kp = Paillier.generateKeyPair(50);
+        long a = 123;
+        BigInteger aE = Paillier.encrypt(kp.pub, a);
+        BigInteger a5E = Paillier.eMulConst(kp.pub, aE, 5);
+        long rtn = Paillier.decrypt(kp.priv, kp.pub, a5E);
+        if (rtn == a * 5) {
+            System.err.println("eMulConst is OK");
+        } else {
+            System.err.println("eMulConst is shit");
+        }
+    }
+
     public static void main(String[] args) {
         testDecryption();
         testAdd();
+        testMulConst();
     }
 }

@@ -24,6 +24,9 @@ class Paillier
     }
 
     public static KeyPair generateKeyPair(long bits) {
+        if (bits < 8) {
+            bits = 8;
+        }
         try {
             BigInteger p = Primes.generatePrime(bits / 2);
             BigInteger q = Primes.generatePrime(bits / 2);
@@ -138,7 +141,7 @@ class Main
     {
         int cnt = 0;
         for (int i = 0; i < 100; i++) {
-            Paillier.KeyPair kp = Paillier.generateKeyPair(50);
+            Paillier.KeyPair kp = Paillier.generateKeyPair(8);
             long a = 10000000;
             // System.err.println("???");
             BigInteger aE = Paillier.encrypt(kp.pub, a);
@@ -152,7 +155,7 @@ class Main
 
     private static void testAdd()
     {
-        Paillier.KeyPair kp = Paillier.generateKeyPair(50);
+        Paillier.KeyPair kp = Paillier.generateKeyPair(8);
         long a = 123;
         long b = 456;
         BigInteger aE = Paillier.encrypt(kp.pub, a);
@@ -176,7 +179,7 @@ class Main
 
     private static void testMulConst()
     {
-        Paillier.KeyPair kp = Paillier.generateKeyPair(50);
+        Paillier.KeyPair kp = Paillier.generateKeyPair(8);
         long a = 123;
         BigInteger aE = Paillier.encrypt(kp.pub, a);
         BigInteger a5E = Paillier.eMulConst(kp.pub, aE, 5);

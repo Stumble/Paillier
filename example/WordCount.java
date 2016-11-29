@@ -24,6 +24,13 @@ public class WordCount {
 
         public void map(Object key, Text value, Context context
                        ) throws IOException, InterruptedException {
+
+            Configuration conf = context.getConfiguration();
+            BigInteger publicKeyN = new BigInteger(conf.get("Paillier.publicKey"));
+            Paillier.PublicKey pk = Paillier.genPublicKey(publicKeyN);
+
+            Text one = new Text(Paillier.encrypt(pk, 1).toString());
+
             StringTokenizer itr = new StringTokenizer(value.toString());
             while (itr.hasMoreTokens()) {
                 word.set(itr.nextToken());
@@ -54,7 +61,18 @@ public class WordCount {
     }
 
     public static void main(String[] args) throws Exception {
+
+        // generate keyPairs
+        // this keygen should be done in another program
+        // then every program get the pub_key
+        // only the decrypt program got priv_key
+        Paillier.KeyPair kp = Paillier.generateKeyPair(8);
+        BigInteger pub_n = kp.pub.n;
+
+
         Configuration conf = new Configuration();
+        conf.set("Paillier.publicKey", pub_n.toString());
+
         Job job = Job.getInstance(conf, "word count");
         job.setJarByClass(WordCount.class);
         job.setMapperClass(TokenizerMapper.class);

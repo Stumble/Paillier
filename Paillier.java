@@ -3,7 +3,7 @@ package Paillier;
 import java.math.BigInteger;
 import java.util.*;
 
-class Paillier
+public class Paillier
 {
     public static BigInteger powpow(BigInteger base, BigInteger exponent, BigInteger mods)
     {

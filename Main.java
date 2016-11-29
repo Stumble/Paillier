@@ -191,9 +191,18 @@ class Main
         }
     }
 
+    private static void testLongEnough()
+    {
+        Paillier.KeyPair kp = Paillier.generateKeyPair(8);
+        long a = 123;
+        BigInteger aE = Paillier.encrypt(kp.pub, a);
+        System.err.println(aE);
+    }
+
     public static void main(String[] args) {
         testDecryption();
         testAdd();
         testMulConst();
+        testLongEnough();
     }
 }

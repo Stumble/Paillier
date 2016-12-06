@@ -28,7 +28,7 @@ public class WordCount2 {
 
         static enum CountersEnum { INPUT_WORDS }
 
-        private final static IntWritable one = new IntWritable(1);
+        // private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
 
         private boolean caseSensitive;
@@ -68,6 +68,13 @@ public class WordCount2 {
         @Override
         public void map(Object key, Text value, Context context
                        ) throws IOException, InterruptedException {
+
+            Configuration conf = context.getConfiguration();
+            BigInteger publicKeyN = new BigInteger(conf.get("Paillier.publicKey"));
+            Paillier.PublicKey pk = new Paillier.PublicKey(publicKeyN);
+
+            Text one = new Text(Paillier.encrypt(pk, 1).toString());
+
             String line = (caseSensitive) ?
             value.toString() : value.toString().toLowerCase();
             for (String pattern : patternsToSkip) {
@@ -85,17 +92,22 @@ public class WordCount2 {
     }
 
     public static class IntSumReducer
-        extends Reducer<Text,IntWritable,Text,IntWritable> {
-        private IntWritable result = new IntWritable();
+        extends Reducer<Text,Text,Text,Text> {
+        private Text result = new Text();
 
-        public void reduce(Text key, Iterable<IntWritable> values,
+        public void reduce(Text key, Iterable<Text> values,
                            Context context
                           ) throws IOException, InterruptedException {
-            int sum = 0;
-            for (IntWritable val : values) {
-                sum += val.get();
+            // BigInteger sumE = Paillier.encrypt(0);
+            BigInteger sum = BigInteger.ZERO;
+            // int sum = 0;
+            for (Text textVal : values) {
+                BigInteger val = new BigInteger(textVal.toString());
+                sum = sum.add(val);
+                // sum += val.get();
             }
-            result.set(sum);
+            Text rtn = new Text(sum.toString());
+            result.set(rtn);
             context.write(key, result);
         }
     }

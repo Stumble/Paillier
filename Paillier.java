@@ -3,7 +3,7 @@ package Paillier;
 import java.math.BigInteger;
 import java.util.*;
 
-public class Paillier
+class Paillier
 {
     public static BigInteger powpow(BigInteger base, BigInteger exponent, BigInteger mods)
     {
@@ -94,6 +94,12 @@ public class Paillier
             l = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
             m = Paillier.invMod(l, n);
         }
+
+        PrivateKey(BigInteger ll, BigInteger mm) throws Exception {
+            l = ll;
+            m = mm;
+        }
+
         public BigInteger l;
         public BigInteger m;
     }
@@ -193,7 +199,7 @@ class Main
 
     private static void testLongEnough()
     {
-        Paillier.KeyPair kp = Paillier.generateKeyPair(8);
+        Paillier.KeyPair kp = Paillier.generateKeyPair(7);
         long a = 123;
         BigInteger aE = Paillier.encrypt(kp.pub, a);
         System.err.println(aE);

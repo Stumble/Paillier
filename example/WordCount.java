@@ -159,9 +159,13 @@ class Paillier
         }
 
         static PublicKey readPubKey() {
+            return readPubKey("");
+        }
+
+        static PublicKey readPubKey(String dir) {
             FileReader fr = null;
             try {
-                fr = new FileReader("pub.key");
+                fr = new FileReader(dir + "pub.key");
             }
             catch (Throwable e) {
                 System.out.println("Error " + e.getMessage());
@@ -280,11 +284,9 @@ public class WordCount {
         // this keygen should be done in another program
         // then every program get the pub_key
         // only the decrypt program got priv_key
-        Paillier.KeyPair kp = Paillier.generateKeyPair(8);
-        BigInteger pub_n = kp.pub.n;
-
-        BigInteger priv_l = kp.priv.l;
-        BigInteger priv_m = kp.priv.m;
+        // Paillier.KeyPair kp = Paillier.generateKeyPair(8);
+        Paillier.PublicKey pk = Paillier.PublicKey.readPubKey(args[0]);
+        BigInteger pub_n = pk.n;
 
         Configuration conf = new Configuration();
         conf.set("Paillier.publicKey", pub_n.toString());

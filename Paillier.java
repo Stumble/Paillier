@@ -1,7 +1,12 @@
-package Paillier;
+package com.ucla.Paillier;
 
 import java.math.BigInteger;
 import java.util.*;
+
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.FileReader;
 
 class Paillier
 {
@@ -95,9 +100,24 @@ class Paillier
             m = Paillier.invMod(l, n);
         }
 
-        PrivateKey(BigInteger ll, BigInteger mm) throws Exception {
+        PrivateKey(BigInteger ll, BigInteger mm) {
             l = ll;
             m = mm;
+        }
+
+        public void writePrivKey(String file) {
+            try {
+                FileWriter fw = new FileWriter(file);
+                fw.write(l.toString());
+                fw.write("\n");
+                fw.write(m.toString());
+                fw.write("\n");
+                fw.close();
+            }
+            catch (Throwable e) {
+                System.out.println("Write PrivKey: Error " + e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         public BigInteger l;
@@ -111,6 +131,34 @@ class Paillier
             g = nx.add(BigInteger.ONE);
         }
 
+        public void writePubKey(String file) {
+            try {
+                FileWriter fw = new FileWriter(file);
+                fw.write(n.toString());
+                fw.write("\n");
+                fw.close();
+            }
+            catch (Throwable e) {
+                System.out.println("WritePubKey: Error " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        static PublicKey readPubKey() {
+            FileReader fr = null;
+            try {
+                fr = new FileReader("pub.key");
+            }
+            catch (Throwable e) {
+                System.out.println("Error " + e.getMessage());
+                e.printStackTrace();
+            }
+            Scanner s = new Scanner(fr);
+            String line = s.nextLine();
+            Paillier.PublicKey pub = new Paillier.PublicKey(new BigInteger(line));
+            return pub;
+        }
+
         public BigInteger n;
         public BigInteger nSq;
         public BigInteger g;
@@ -122,23 +170,42 @@ class Paillier
             priv = privateKey;
             pub = publicKey;
         }
+
+        static KeyPair readKeyPair() {
+            PublicKey pub = PublicKey.readPubKey();
+            FileReader fr = null;
+            try {
+                fr = new FileReader("priv.key");
+            }
+            catch (Throwable e) {
+                System.out.println("Error " + e.getMessage());
+                e.printStackTrace();
+            }
+            Scanner s = new Scanner(fr);
+            BigInteger l = new BigInteger(s.nextLine());
+            BigInteger m = new BigInteger(s.nextLine());
+            PrivateKey priv = new PrivateKey(l, m);
+            KeyPair pk = new KeyPair(priv, pub);
+            return pk;
+        }
+
         public PrivateKey priv;
         public PublicKey pub;
     }
 
-}
 
-class Primes {
-
-    static public BigInteger generatePrime(long nBit)
-    {
-        if (nBit < 40) {
-            nBit = 40;
+    static public class Primes {
+        static public BigInteger generatePrime(long nBit)
+        {
+            if (nBit < 40) {
+                nBit = 40;
+            }
+            return BigInteger.probablePrime((int)nBit, r);
         }
-        return BigInteger.probablePrime((int)nBit, r);
+
+        static Random r = new Random();
     }
 
-    static Random r = new Random();
 }
 
 class Main

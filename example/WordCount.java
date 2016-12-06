@@ -220,14 +220,6 @@ public class WordCount {
         BigInteger priv_l = kp.priv.l;
         BigInteger priv_m = kp.priv.m;
 
-        FileWriter fw = new FileWriter("privateKey");
-        fw.write(priv_l.toString());
-        fw.write("\n");
-        fw.write(priv_m.toString());
-        fw.write("\n");
-        fw.close();
-
-
         Configuration conf = new Configuration();
         conf.set("Paillier.publicKey", pub_n.toString());
 

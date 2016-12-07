@@ -330,7 +330,16 @@ public class WordCount2 {
     }
 
     public static void main(String[] args) throws Exception {
-        Paillier.PublicKey pk = Paillier.PublicKey.readPubKey("/tmp/.mh-pub.key");
+        Paillier.PublicKey pk = Paillier.PublicKey.readPubKey("input/pub.key");
+        // try {
+        //     pk = Paillier.PublicKey.readPubKey("/tmp/.mh-pub.key");
+        // }
+        // catch (Throwable e) {
+        //     pk = Paillier.PublicKey.readPubKey("input/pub.key");
+        //     System.out.println("INFO use pub.key in input folder");
+        //     e.printStackTrace();
+        // }
+
         BigInteger pub_n = pk.n;
         Configuration conf = new Configuration();
         conf.set("Paillier.publicKey", pub_n.toString());

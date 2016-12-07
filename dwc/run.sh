@@ -9,6 +9,12 @@ export HADOOP_CLASSPATH=${JAVA_HOME}/lib/tools.jar
 
 rm -rf /tmp/hadoop-stumble
 
+rm /tmp/.mh-pub.key
+
+rm -rf output
+
+mkdir output
+
 ${hd}/bin/hdfs namenode -format
 
 ${hd}/sbin/stop-all.sh
@@ -27,7 +33,7 @@ ${hd}/bin/hdfs dfs -put input input
 
 ${hd}/bin/hdfs dfs -get input/pub.key /tmp/.mh-pub.key
 
-${hd}/bin/hadoop jar wc.jar WordCount2 input output
+${hd}/bin/hadoop jar wc.jar WordCount2 input output -skip input/pub.key
 
 ${hd}/bin/hdfs dfs -get output output
 

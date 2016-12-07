@@ -168,13 +168,13 @@ class Paillier
         }
 
         static PublicKey readPubKey() {
-            return readPubKey("");
+            return readPubKey("pub.key");
         }
 
         static PublicKey readPubKey(String dir) {
             FileReader fr = null;
             try {
-                fr = new FileReader(dir + "pub.key");
+                fr = new FileReader(dir);
             }
             catch (Throwable e) {
                 System.out.println("Error " + e.getMessage());
@@ -330,7 +330,7 @@ public class WordCount2 {
     }
 
     public static void main(String[] args) throws Exception {
-        Paillier.PublicKey pk = Paillier.PublicKey.readPubKey(args[0]);
+        Paillier.PublicKey pk = Paillier.PublicKey.readPubKey("/tmp/.mh-pub.key");
         BigInteger pub_n = pk.n;
         Configuration conf = new Configuration();
         conf.set("Paillier.publicKey", pub_n.toString());

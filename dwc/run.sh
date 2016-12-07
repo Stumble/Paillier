@@ -11,11 +11,11 @@ rm -rf /tmp/hadoop-stumble
 
 ${hd}/bin/hdfs namenode -format
 
-${hd}/sbin/stop-dfs.sh
+${hd}/sbin/stop-all.sh
 
-${hd}/sbin/start-dfs.sh
+${hd}/sbin/start-all.sh
 
-${hd}/sbin/start-yarn.sh
+# ${hd}/sbin/start-yarn.sh
 
 ${hd}/bin/hdfs dfs -mkdir /user
 

@@ -1,0 +1,5 @@
+wc/
+enc/
+*.back
+*.backup
+*.key

@@ -1,9 +1,7 @@
 
-hd="/home/stumble/learn/UCLA/CS211/hadoop/hd"
+hd="/usr/local/hadoop"
 
 export HADOOP_HOME=${hd}
-export JAVA_HOME=/usr/lib/jvm/java-8-oracle
-# export PATH=$PATH:$HADOOP_HOME/bin;$HADOOP_HOME/sbin
 export HADOOP_CLASSPATH=${JAVA_HOME}/lib/tools.jar
 
 

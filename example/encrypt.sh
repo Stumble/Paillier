@@ -4,7 +4,17 @@ then
     exit 1
 fi
 
+rm -rf input/
+mkdir input
+
 input="$1"
+
+cd enc
+
+rm *.key
+rm $input
+
+cd ..
 
 cp ./raw-input/$input ./enc/
 

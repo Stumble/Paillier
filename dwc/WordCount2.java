@@ -10,7 +10,6 @@ import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-// import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -315,13 +314,16 @@ public class WordCount2 {
         public void reduce(Text key, Iterable<Text> values,
                            Context context
                           ) throws IOException, InterruptedException {
-            // BigInteger sumE = Paillier.encrypt(0);
-            BigInteger sum = BigInteger.ZERO;
-            // int sum = 0;
+            // TODO: move these initialization codes to setup
+            Configuration conf = context.getConfiguration();
+            BigInteger publicKeyN = new BigInteger(conf.get("Paillier.publicKey"));
+            Paillier.PublicKey pk = new Paillier.PublicKey(publicKeyN);
+
+            BigInteger sum = Paillier.encrypt(pk, 0);
+
             for (Text textVal : values) {
                 BigInteger val = new BigInteger(textVal.toString());
-                sum = sum.add(val);
-                // sum += val.get();
+                sum = Paillier.eAdd(pk, sum, val);
             }
             Text rtn = new Text(sum.toString());
             result.set(rtn);
@@ -330,15 +332,15 @@ public class WordCount2 {
     }
 
     public static void main(String[] args) throws Exception {
-        Paillier.PublicKey pk = Paillier.PublicKey.readPubKey("input/pub.key");
-        // try {
-        //     pk = Paillier.PublicKey.readPubKey("/tmp/.mh-pub.key");
-        // }
-        // catch (Throwable e) {
-        //     pk = Paillier.PublicKey.readPubKey("input/pub.key");
-        //     System.out.println("INFO use pub.key in input folder");
-        //     e.printStackTrace();
-        // }
+        Paillier.PublicKey pk = null;
+        try {
+            pk = Paillier.PublicKey.readPubKey("/tmp/.mh-pub.key");
+        }
+        catch (Throwable e) {
+            pk = Paillier.PublicKey.readPubKey("input/pub.key");
+            System.out.println("INFO use pub.key in input folder");
+            e.printStackTrace();
+        }
 
         BigInteger pub_n = pk.n;
         Configuration conf = new Configuration();

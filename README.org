@@ -13,6 +13,14 @@ This project contains:
 + Hadoop sample configuration
 + Hadoop fully distributed mode configuration guide (by Jonathan Lin)
 
+* What are those folders
+
++ PaillierJava: homomorphic algorithm java implementation
++ dwc: secured distributed word count program
++ encryption: encryption & decryption program
++ hadoop-etc: Hadoop sample conf files
++ example: the how process to run a homomorphic encrypted word count
+
 * Prerequisite
 
 ** Environment

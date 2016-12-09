@@ -1,0 +1,30 @@
+
+* About
+
+This project contains:
+
++ A java implement of homomorphic encryption algorithm: Paillier
++ An experimental implement of the Hadoop wordcount program using
+  homomorphic encryption system Paillier.
++ Scripts to run the whole process: 
+  1. encrypt data
+  2. start Hadoop/HDFS/YARN and push data to HDFS
+  3. decrypt data
++ Hadoop sample configuration
++ Hadoop fully distributed mode configuration guide (by Jonathan Lin)
+
+* Prerequisite
+
+** Environment
+
++ JAVA 1.8
++ Hadoop 2.7.3
+
+** Configuration
+
+1. Review all the *.sh script in this proj, replace all the absolute address
+   in files. E.g. replace `hd="/home/stumble/learn/UCLA/CS211/hadoop/hd"` with 
+   your hadoop folder.
+
+2. Execute all the compile.sh
+

@@ -1,0 +1,91 @@
+PROCEDURE: Instructions: https://chawlasumit.wordpress.com/2015/03/09/install-a-multi-node-hadoop-cluster-on-ubuntu-14-04/
+
+1. Ensure all Linux OS's can ping each other
+	Make custom NAT-Network
+	VBoxManage natnetwork add -t vmnet -n "192.168.5.0/24" -e
+	DHCP can be used, but make sure hostname/hosts configs are corrected or updated when machines are turned off/on
+	
+
+
+2. Change host names of all VM's to a similar convention
+	hadoop-master
+	hadoop-slave-1
+	hadoop-slave-2
+
+	/etc/hostname
+	/etc/hosts
+	sudo service hostname restart
+
+3. Modify hosts file of all VM's to match
+	# Hadoop
+	192.168.5.4 hadoop-master
+	192.168.5.5 hadoop-slave-1
+	192.168.5.6 hadoop-slave-2
+	MANUALLY TEST USING NAMES AND NOT IP!!
+
+	
+4. Ensure Ubuntu is up to date
+	sudo apt-get update
+5. Ensure Java is installed on all nodes
+	sudo apt-get install opendjdk-7-jdk
+
+6. Ensure SSH is installed on all nodes
+	sudo apt-get install openssh-server
+
+7. Create hadoopgroup and create hadoop user on all nodes
+	sudo addgroup hadoopgroup
+	sudo adduser -ingroup hadoopgroup hadoopuser
+	usermod -aG sudo hadoopuser (If you need to use sudo on hadoop user)
+
+8. Generate ssh keys on master and push them to all slaves
+	# Login as hadoopuser
+	 su - hadoopuser
+	#Generate a ssh key for the user
+	 ssh-keygen -t rsa -P ""
+	#Authorize the key to enable password less ssh 
+	 cat /home/hadoopuser/.ssh/id_rsa.pub >> /home/hadoopuser/.ssh/authorized_keys
+	 chmod 600 authorized_keys
+	#Copy this key to slave-1 to enable password less ssh 
+	 ssh-copy-id -i ~/.ssh/id_rsa.pub slave-1
+	#Make sure you can do a password less ssh using following command.
+	 ssh slave-1
+
+9. Download hadoop version. extract to hadoopuser directory
+	$ cd /home/hadoopuser
+	$ tar xvf hadoop-2.x.y.tar.gz
+	$ mv hadoop-2.x.y hadoop
+
+10. Copy and paste following lines to .bashrc for hadoopuser on every node
+	# Set HADOOP_HOME
+	export HADOOP_HOME=/home/hduser/hadoop
+	# Set JAVA_HOME 
+	export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+	# Add Hadoop bin and sbin directory to PATH
+	export PATH=$PATH:$HADOOP_HOME/bin;$HADOOP_HOME/sbin
+
+11. Update hadoop-env.sh for hadoopuser on every node
+ 	Update JAVA_HOME in /home/hadoopuser/hadoop/etc/hadoop/hadoop-env.sh to following:
+	export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+
+12. Add/Update config files - 
+	look @ website
+	For hdfs-site.xml change namenode and datanode directory to user's local ~
+	mkdir data_hdfs
+	mkdir data_hdfs/namenode
+	mkdir data_hdfs/datanode
+
+	MAKE SURE XML FORMAT IS CORRECT!
+
+13. Browse to bin directory, execute:
+	hdfs namenode -format
+	If this works, the configging is correct!
+
+14. Start DFS
+	./home/hadoopuser/hadoop/sbin/start-dfs.sh
+If all output looks correct then we are finished! Jobs can now be run. The output of this command should list NameNode, SecondaryNameNode, DataNode on master node, and DataNode on all slave nodes.  If you don’t see the expected output, review the log files listed in Troubleshooting section.
+
+14.5
+$ ./home/hadoopuser/hadoop/sbin/start-yarn.sh
+
+15. SUCCESS!
+	

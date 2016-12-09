@@ -6,7 +6,9 @@
 # jar cvf Paillier.jar Paillier/*
 
 # normal version
+rm -rf build
+mkdir build
 cp Paillier.java ./build/Main.java
 javac -d ./build ./build/Main.java
 cd build
-jar cvf Paillier.jar Paillier/*
+jar cvf Paillier.jar *

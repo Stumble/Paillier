@@ -1,5 +1,3 @@
-package com.ucla.Paillier;
-
 import java.math.BigInteger;
 import java.util.*;
 

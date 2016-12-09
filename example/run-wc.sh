@@ -3,7 +3,7 @@ cp -r input ./wc
 
 cd wc
 
-./simple-run.sh
+./run.sh
 
 cd ..
 

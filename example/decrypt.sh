@@ -9,15 +9,16 @@ input="part-r-00000"
 # fi
 
 
-cp ./encrypt-output/$input ./enc/
+cp ./encrypt-output/output/$input ./enc/
+
+cp ./priv.key ./enc/
 
 cd ./enc/
 
 java Encryption decrypt $input
 
-cd ..
+# cd ..
 
-cp raw-input/part-r-00000 decrypted-part-r-00000
+# cp raw-input/part-r-00000 decrypted-part-r-00000
 
-
-# cp decrypted-$input ../
+cp decrypted-$input ../
